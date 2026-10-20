@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Bureau Windows 95 — Projects GitHub</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:"Times New Roman", Times, serif; }
+  body { background:#008080; height:100vh; overflow:hidden; font-size:14px; }
+  .win { position:absolute; width:420px; background:#c0c0c0; border:2px solid;
+         border-color:#ffffff #000000 #000000 #ffffff;
+         box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080; }
+  .titlebar { background:linear-gradient(90deg,#000080,#1084d0); color:#fff;
+              padding:3px 4px; display:flex; align-items:center; font-weight:bold;
+              user-select:none; cursor:move; }
+  .titlebar .t { flex:1; padding-left:2px; }
+  .btns { display:flex; gap:2px; }
+  .tbtn { width:16px; height:14px; background:#c0c0c0; border:2px solid;
+          border-color:#ffffff #000 #000 #ffffff; position:relative; cursor:pointer; }
+  .tbtn.min::after { content:""; position:absolute; bottom:1px; left:2px; width:8px; height:2px; background:#000; }
+  .tbtn.max::after { content:""; position:absolute; top:1px; left:2px; width:8px; height:8px;
+          border:2px solid #000; border-top-width:2px; box-shadow: 0 2px 0 -1px #c0c0c0, 0 2px 0 0 #000; }
+  .tbtn.close::after { content:"×"; position:absolute; top:-3px; left:2px; font-size:13px; color:#000; font-family:Arial; }
+  .win-body { padding:8px; border:2px solid; border-color:#808080 #fff #fff #808080; margin:0 4px 4px; }
+  .desc { margin:6px 0 8px; }
+  .mp3 { border:2px solid; border-color:#808080 #fff #fff #808080; background:#000; color:#0f0;
+         font-family:"Courier New",monospace; padding:6px 8px; display:flex; align-items:center; gap:8px; }
+  .bars { display:flex; gap:1px; align-items:flex-end; height:18px; }
+  .bars span { width:3px; background:#0f0; animation:eq .8s infinite alternate; }
+  .bars span:nth-child(2){height:8px;animation-delay:.1s} .bars span:nth-child(3){height:14px;animation-delay:.2s}
+  .bars span:nth-child(4){height:6px;animation-delay:.3s} .bars span:nth-child(5){height:12px;animation-delay:.4s}
+  @keyframes eq { from{transform:scaleY(.3)} to{transform:scaleY(1)} }
+  .tag { display:inline-block; background:#c0c0c0; border:2px solid; border-color:#fff #000 #000 #fff; padding:1px 6px; margin:2px 2px 0 0; font-size:12px; }
+  /* Barre des tâches */
+  #taskbar { position:fixed; bottom:0; left:0; right:0; height:34px; background:#c0c0c0;
+             border-top:2px solid #fff; display:flex; align-items:center; padding:2px 4px; gap:4px; z-index:9999; }
+  #start { border:2px solid; border-color:#fff #000 #000 #fff; padding:2px 8px; font-weight:bold; cursor:pointer; }
+  #start:active, .tb-btn:active { border-color:#000 #fff #fff #000; }
+  .tb-btn { border:2px solid; border-color:#fff #000 #000 #fff; padding:2px 8px; font-size:12px; max-width:170px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #clock { margin-left:auto; border:2px solid; border-color:#808080 #fff #fff #808080; padding:2px 10px; }
+  #startmenu { position:fixed; bottom:34px; left:4px; width:220px; background:#c0c0c0;
+               border:2px solid; border-color:#fff #000 #000 #fff; display:none; z-index:10000; }
+  #startmenu .side { writing-mode:vertical-rl; transform:rotate(180deg); background:#000080; color:#fff;
+               font-size:20px; padding:8px 3px; position:absolute; right:0; top:0; bottom:0; }
+  #startmenu .item { padding:6px 10px; cursor:pointer; }
+  #startmenu .item:hover { background:#000080; color:#fff; }
+  #menuwrap { display:flex; }
+</style>
+</head>
+<body>
+<div id="desktop"></div>
+
+<div id="startmenu"><div id="menuwrap">
+  <div style="flex:1">
+    <div class="item">Programmes ▸</div>
+    <div class="item">Documents ▸</div>
+    <div class="item">Paramètres ▸</div>
+    <div class="item">Rechercher ▸</div>
+    <div class="item">Aide</div>
+    <div class="item">Exécuter...</div>
+  </div>
+  <div class="side">Windows 95</div>
+</div></div>
+
+<div id="taskbar">
+  <div id="start">Démarrer</div>
+  <div id="tbwins" style="display:flex;gap:4px"></div>
+  <div id="clock">--:--</div>
+</div>
+
+<script>
+const projets = [
+  { nom:"freeCodeCamp", auteur:"freeCodeCamp", etoiles:"413 000", lang:"TypeScript", desc:"Apprendre à coder gratuitement : curriculum complet avec certification." },
+  { nom:"build-your-own-x", auteur:"codecrafters-io", etoiles:"370 000", lang:"Markdown", desc:"Reconstruisez vos technologies préférées de zéro, pas à pas." },
+  { nom:"awesome", auteur:"sindresorhus", etoiles:"340 000", lang:"Shell", desc:"Listes curatées de ressources formidables sur tous les sujets." },
+  { nom:"react", auteur:"facebook", etoiles:"230 000", lang:"JavaScript", desc:"Bibliothèque pour interfaces utilisateur déclaratives et composables." },
+  { nom:"vue", auteur:"vuejs", etoiles:"208 000", lang:"TypeScript", desc:"Cadre progressif pour construire des interfaces utilisateur." },
+  { nom:"linux", auteur:"torvalds", etoiles:"185 000", lang:"C", desc:"Le noyau Linux, clone du système d'exploitation UNIX." },
+  { nom:"coding-interview-university", auteur:"jwasham", etoiles:"310 000", lang:"Python", desc:"Plan d'études complet pour devenir ingénieur logiciel." },
+  { nom:"system-design-primer", auteur:"donnemartin", etoiles:"290 000", lang:"Python", desc:"Apprendre la conception de systèmes à grande échelle." }
+];
+const couleurs = ["#008080","#800000","#000080","#4a0d66","#0a5c2e","#5c4a00","#333366","#663300"];
+const bureau = document.getElementById("desktop");
+const tbwins = document.getElementById("tbwins");
+let z = 10;
+
+projets.forEach((p,i)=>{
+  const w = document.createElement("div");
+  w.className = "win";
+  w.style.width = "380px";
+  w.style.left = (30 + (i%4)*330) + "px";
+  w.style.top = (20 + (i%3)*210) + "px";
+  w.style.zIndex = ++z;
+  w.innerHTML = `
+    <div class="titlebar"><span class="t">${p.nom}.exe — Propriétés</span>
+      <span class="btns"><span class="tbtn min"></span><span class="tbtn max"></span><span class="tbtn close"></span></span>
+    </div>
+    <div class="win-body" style="background:${couleurs[i]};color:#fff">
+      <b style="font-size:16px">${p.nom}</b> <span style="font-size:12px">par ${p.auteur}</span>
+      <div class="desc" style="margin:6px 0 4px">${p.desc}</div>
+      <div class="mp3"><div class="bars"><span style="height:12px"></span><span></span><span></span><span></span><span></span></div>
+        ★ ${p.etoiles} étoiles | ${p.lang}</div>
+      <div style="margin-top:6px"><span class="tag">GitHub</span><span class="tag">${p.lang}</span><span class="tag">Populaire</span></div>
+    </div>`;
+  bureau.appendChild(w);
+
+  // Barre des tâches
+  const tb = document.createElement("div");
+  tb.className = "tb-btn"; tb.textContent = p.nom;
+  tb.onclick = ()=>{ w.style.zIndex = ++z; w.style.display = w.style.display==="none"?"block":"none"; };
+  tbwins.appendChild(tb);
+
+  // Glisser-déposer (drag)
+  const bar = w.querySelector(".titlebar");
+  bar.addEventListener("mousedown", e=>{
+    if (e.target.classList.contains("tbtn")) return;
+    w.style.zIndex = ++z;
+    const ox = e.clientX - w.offsetLeft, oy = e.clientY - w.offsetTop;
+    const mv = ev=>{ w.style.left=(ev.clientX-ox)+"px"; w.style.top=Math.max(0,ev.clientY-oy)+"px"; };
+    const up = ()=>{ document.removeEventListener("mousemove",mv); document.removeEventListener("mouseup",up); };
+    document.addEventListener("mousemove",mv); document.addEventListener("mouseup",up);
+    e.preventDefault();
+  });
+  w.querySelector(".close").onclick = ()=> w.style.display="none";
+  w.querySelector(".min").onclick = ()=> w.style.display="none";
+  w.querySelector(".max").onclick = ()=>{
+    w.style.width = w.style.width==="380px" ? "calc(100vw - 20px)" : "380px";
+    w.style.left = "10px"; w.style.top = "10px";
+  };
+});
+
+document.getElementById("start").onclick = ()=>{
+  const m = document.getElementById("startmenu");
+  m.style.display = m.style.display==="block" ? "none" : "block";
+};
+function horloge(){ document.getElementById("clock").textContent = new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}); }
+horloge(); setInterval(horloge, 20000);
+</script>
+</body>
+</html>
